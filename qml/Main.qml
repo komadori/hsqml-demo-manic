@@ -21,7 +21,7 @@ Window {
         }
         ListView {
             model: AutoListModel {
-                mode: AutoListModel.ByEquality;
+                mode: AutoListModel.ByKey;
                 source: board.tileSource.topN(8);
             }
             delegate: Item {
