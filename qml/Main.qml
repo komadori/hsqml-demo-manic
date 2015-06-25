@@ -39,9 +39,17 @@ Window {
             }
             displaced: Transition {
                 NumberAnimation { properties: "x,y"; duration: 1000; }
+                NumberAnimation { properties: "scale"; duration: 1000; to: 1; }
+            }
+            add: Transition {
+                NumberAnimation {
+                    properties: "scale"; duration: 1000; from: 0; to: 1;
+                }
             }
             remove: Transition {
-                NumberAnimation { properties: "scale"; duration: 1000; from: 1; to: 0; }
+                NumberAnimation {
+                    properties: "scale"; duration: 1000; from: 1; to: 0;
+                }
             }
             Layout.fillHeight: true;
             width: 100;
