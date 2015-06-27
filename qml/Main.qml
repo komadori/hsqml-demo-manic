@@ -23,12 +23,14 @@ Window {
             model: AutoListModel {
                 mode: AutoListModel.ByKey;
                 source: board.tileSource.topN(8);
+                equalityTest: function(a, b) {return a.tile == b.tile;}
+                keyFunction: function(x) {return x.idx;}
             }
             delegate: Item {
                 width: 100; height: 100; 
                 Repeater {
                     anchors.fill: parent;
-                    model: sparePart(modelData);
+                    model: sparePart(modelData.tile);
                     Plumb {
                         anchors.fill: parent;
                         entryA: modelData.entryA;
@@ -48,7 +50,7 @@ Window {
             }
             remove: Transition {
                 NumberAnimation {
-                    properties: "scale"; duration: 1000; from: 1; to: 0;
+                    properties: "scale"; duration: 1000; to: 0;
                 }
             }
             Layout.fillHeight: true;

@@ -98,7 +98,7 @@ Item {
             onPressed: {
                 if (mouseView.tilePlacable) {
                     c.gridModel = c.gridModel.place(
-                        mouseView.tileX, mouseView.tileY, tileSource.top);
+                        mouseView.tileX, mouseView.tileY, tileSource.top.tile);
                     c.tileSource = c.tileSource.next;
                 }
                 c.pressedComplete();

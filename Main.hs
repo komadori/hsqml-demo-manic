@@ -49,7 +49,18 @@ data Tile
     | Cross
     deriving (Eq, Show, Read)
 
-newtype TileSource = TileSource [Tile] deriving Typeable
+data NumberedTile = NumberedTile Tile Int deriving Typeable
+
+newtype TileSource = TileSource [NumberedTile] deriving Typeable
+
+instance Marshal NumberedTile where
+    type MarshalMode NumberedTile c d = ModeObjBidi NumberedTile c
+    marshaller = bidiMarshallerIO (return . fromObjRef) newObjectDC
+
+instance DefaultClass NumberedTile where
+    classMembers = [
+        defPropertyConst "tile" (\(NumberedTile tile _) -> return tile),
+        defPropertyConst "idx" (\(NumberedTile _ idx) -> return idx)]
 
 instance Marshal TileSource where
     type MarshalMode TileSource c d = ModeObjBidi TileSource c
@@ -61,12 +72,12 @@ instance DefaultClass TileSource where
         defPropertyConst "next" (\(TileSource ts) ->
             return $ TileSource $ tail ts),
         defMethod "topN" (\(TileSource ts) n ->
-            return $ take n ts :: IO [Tile])]
+            return $ take n ts :: IO [NumberedTile])]
 
 newTileSource :: IO TileSource
 newTileSource = do
     g <- newStdGen
-    return $ TileSource $ randomTiles g
+    return $ TileSource $ zipWith NumberedTile (randomTiles g) [0..]
 
 randomEnum :: forall g e. (RandomGen g, Enum e, Bounded e) => Rand g e
 randomEnum = fmap toEnum $ getRandomR (fromEnum lo, fromEnum hi)
@@ -375,7 +386,7 @@ gridHeuristic vol grid = snd $ foldStarts (\col start (grid',heur) ->
     in (grid'', heur + 2*bonus + 4*plumbedLen - pathLen)) (grid, 0) grid
 
 pickMove :: Grid -> TileSource -> Point -> Int -> Point
-pickMove grid (TileSource (tile:_)) start vol =
+pickMove grid (TileSource (NumberedTile tile _:_)) start vol =
     fst $ head $ sortMoves start vol $ searchMoves grid vol tile
 
 searchMoves :: Grid -> Int -> Tile -> [(Point, Grid)]
