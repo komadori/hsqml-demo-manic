@@ -16,6 +16,8 @@ import Data.List
 import Graphics.QML
 import Graphics.QML.Objects.ParamNames
 
+import Paths_hsqml_demo_manic
+
 data Bearing = North | East | South | West
     deriving (Typeable, Eq, Enum, Bounded, Show, Read)
 
@@ -419,14 +421,14 @@ main = debugMain newGrid
 debugMain :: Grid -> IO ()
 debugMain myGrid = do
     clazz <- newClass [
-        defMethod' "finished" (\_ -> putStrLn "All Done! :-)"),
         defMethod' "newTileSource" (\_ -> newObjectDC =<< newTileSource),
         defMethod' "newGrid" (\_ -> newObjectDC myGrid),
         defMethod' "sparePart" (\_ tile ->
             return $ sparePart (Pt 0 0) tile [] :: IO [Plumb])]
     object <- newObject clazz ()
     -- setQtArgs "hsqml-manic" ["-qmljsdebugger=port:9999,block"]
+    qml <- getDataFileName "Main.qml"
     runEngineLoop $ defaultEngineConfig {
-        initialDocument = fileDocument "qml/Main.qml",
+        initialDocument = fileDocument qml,
         contextObject = Just $ anyObjRef object
     }
