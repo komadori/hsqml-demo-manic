@@ -5,6 +5,7 @@ Item {
     id: c;
     width: tileSize;
     height: tileSize;
+    clip: true;
 
     property double tileSize : 100;
     property double internalTileSize : 100;
