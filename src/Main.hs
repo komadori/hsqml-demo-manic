@@ -281,7 +281,8 @@ plumbLeak ps =
 
 stripPlumbed :: [Plumb] -> Grid -> Grid
 stripPlumbed ps (Grid w h grid) =
-    Grid w h $ foldr (\(Plumb _ _ p theta _) -> Map.update (f theta) p) grid ps
+    Grid w h $ foldl' (flip $ \(Plumb _ _ p theta _) ->
+        Map.update (f theta) p) grid ps
     where f (Just North) Cross = Just $ Straight Horizontal
           f (Just East)  Cross = Just $ Straight Vertical
           f (Just South) Cross = Just $ Straight Horizontal
