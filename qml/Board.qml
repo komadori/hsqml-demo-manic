@@ -7,7 +7,7 @@ Item {
     property int tilesWide : 8;
     property int tilesHigh : 8;
     property bool isVirtual : false;
-    property color bgColor : 'cyan';
+    property color bgColor : 'cornsilk';
 
     property double tileSize : Math.floor(Math.min(
         width / tilesWide,  height / tilesHigh));
