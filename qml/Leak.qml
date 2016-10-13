@@ -12,7 +12,8 @@ Item {
     property color colour : 'green';
     property bool trigger : false;
 
-    onTriggerChanged: if (trigger) {sizeAnim.start();}
+    onTriggerChanged:
+        if (trigger) {sizeAnim.start();} else {sizeAnim.stop(); grad.size = 0;}
 
     RadialGradient {
         id: grad;

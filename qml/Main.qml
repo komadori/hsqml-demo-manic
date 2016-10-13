@@ -18,11 +18,39 @@ Window {
                 id: board;
                 anchors.fill: parent;
             }
+            Rectangle {
+                width: 1.2*btnText.width;
+                height: 1.2*btnText.height;
+                anchors.centerIn: parent;
+                color: 'green';
+                radius: 0.1*btnText.height;
+                enabled: board.gameOver;
+                opacity: board.gameOver ?
+                    (btnArea.containsMouse ? 1 : 0.5) : 0;
+                Behavior on opacity {
+                    NumberAnimation { duration: 500; }
+                }
+                MouseArea {
+                    id: btnArea;
+                    anchors.fill: parent;
+                    hoverEnabled: true;
+                    onClicked: board.start(false);
+                    cursorShape: Qt.PointingHandCursor;
+                }
+                Text {
+                    id: btnText;
+                    anchors.centerIn: parent;
+                    color: 'white';
+                    font.pixelSize: 0.1*board.height;
+                    text: '(Re)Start';
+                }
+            }
         }
         ListView {
+            id: tileList;
             model: AutoListModel {
                 mode: AutoListModel.ByKey;
-                source: board.tileSource.topN(8);
+                source: board.tileSource.topN(tileList.height/100);
                 equalityTest: function(a, b) {return a.tile == b.tile;}
                 keyFunction: function(x) {return x.idx;}
             }

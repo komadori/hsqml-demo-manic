@@ -155,6 +155,10 @@ instance DefaultClass PlumbedGrid where
     classMembers = [
         defPropertyConst "plumbing" (\(PlumbedGrid ps _ _) -> return ps),
         defPropertyConst "leaks" (\(PlumbedGrid _ ls _) -> return ls),
+        defPropertyConst "maxIndex" (\(PlumbedGrid ps _ _) ->
+            return . minimum . filter (>= 0) .
+            map (maximum . map (\(Plumb _ i _ _ _) -> i)) $
+            groupBy ((==) `on` (\(Plumb c _ _ _ _) -> c)) ps),
         defMethod "isPlacable" (\pGrid n x y ->
             return $ isPlacable pGrid n (Pt x y) :: IO Bool)]
 

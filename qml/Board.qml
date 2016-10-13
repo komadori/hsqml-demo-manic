@@ -6,6 +6,7 @@ Item {
     id: c;
     property int tilesWide : 8;
     property int tilesHigh : 8;
+    property bool isVirtual : false;
 
     property double tileSize : Math.min(
         width / tilesWide,  height / tilesHigh);
@@ -17,8 +18,10 @@ Item {
 
     property double countDown;
     NumberAnimation on countDown {
+        id: countAnim;
         from: 3; to: 0;
         duration: 9000;
+        running: false;
         onStopped: volumeAnim.start(); 
     }
 
@@ -28,6 +31,22 @@ Item {
         from: 0; to: 100 + 0.1;
         duration: 5000 * (100 + 0.1);
         running: false;
+    }
+
+    property var gameOver :
+        (!countAnim.running && !volumeAnim.running) ||
+        n > (plumbedGrid.maxIndex+1) ||
+        plumbedGrid.leaks.length == 0;
+
+    function start() {
+        volumeAnim.stop();
+        n = 0;
+        tileSource = newTileSource();
+        gridModel = newGrid();
+        if (c.isVirtual) {
+            virtualMouse.pick();
+        }
+        countAnim.restart();
     }
 
     Repeater {
@@ -87,7 +106,8 @@ Item {
 
     Rectangle {
         id: mouseView;
-        property var mouse: realMouse;
+        property var mouse: c.gameOver ? noMouse :
+            (c.isVirtual ? virtualMouse : realMouse);
         property int tileX: Math.floor(mouse.mouseX/c.tileSize);
         property int tileY: Math.floor(mouse.mouseY/c.tileSize);
         property bool tilePlacable:
@@ -167,11 +187,6 @@ Item {
             target: c.gridModel;
             onPicked: virtualMouse.move(pos); 
         }
-        Timer {
-            running: true;
-            interval: 6500;
-            onTriggered: virtualMouse.pick();
-        }
         property int mouseX : (tileX+0.5)*c.tileSize;
         property int mouseY : (tileY+0.5)*c.tileSize;
         property bool containsMouse : true;
@@ -188,5 +203,13 @@ Item {
         id: realMouse;
         anchors.fill: parent;
         hoverEnabled: true;
+    }
+
+    Item {
+        id: noMouse;
+        property int mouseX : 0;
+        property int mouseY : 0;
+        property bool containsMouse : false;
+        signal pressed();
     }
 }
