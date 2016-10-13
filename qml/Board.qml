@@ -40,14 +40,14 @@ Item {
         plumbedGrid.leaks.length == 0;
 
     function start() {
-        volumeAnim.stop();
-        n = 0;
         tileSource = newTileSource();
         gridModel = newGrid();
         if (c.isVirtual) {
             virtualMouse.pick();
         }
         countAnim.restart();
+        volumeAnim.stop();
+        n = 0;
     }
 
     Rectangle {
