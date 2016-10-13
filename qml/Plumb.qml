@@ -13,6 +13,7 @@ Item {
     property var exitA : null;
     property double volume : 0;
     property color colour : 'green';
+    property string label : '';
 
     property string _maskSource : '';
     property int _maskRotation : 0;
@@ -149,6 +150,19 @@ Item {
             text: c._maskLetter;
             color: c.colour.r + c.colour.g + c.colour.b > 1.5 ?
                 Qt.darker(c.colour, 2) : Qt.lighter(c.colour, 2);
+        }
+        Item {
+            anchors.fill: parent;
+            rotation: rotate(c._maskRotation, 270) % 180;
+            Text {
+                x: rotate(c._maskRotation,90) <= 90 ? 0 : 0.4*c.tileSize;
+                y: 0.25*c.tileSize;
+                width: 0.6*c.tileSize;
+                horizontalAlignment: rotate(c._maskRotation,90) <= 90 ?
+                    Text.AlignRight : Text.AlignLeft;
+                font.pixelSize: 0.1*c.tileSize;
+                text: c.label;
+            }
         }
     }
 }

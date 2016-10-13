@@ -102,6 +102,7 @@ Item {
             entryA: modelData.entryA;
             exitA: modelData.exitA;
             colour: modelData.colour;
+            label: modelData.colour;
             volume: modelData.idx < 0 ?
                 0 : Math.min(Math.max(c.n-modelData.idx,0),1.1);
         }
