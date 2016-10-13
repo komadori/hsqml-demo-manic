@@ -16,6 +16,20 @@ Window {
             Board {
                 id: board;
                 anchors.fill: parent;
+                onGameOverChanged: if (board.gameOver) {
+                    idleTimer.restart();
+                    idleTimer.count = 9;
+                }
+            }
+            Timer {
+                id: idleTimer;
+                interval: 1000;
+                repeat: true;
+                property int count : 10;
+                onTriggered: if (--idleTimer.count == 0) {
+                    board.isVirtual = true;
+                    board.start();
+                }
             }
             Rectangle {
                 width: 1.2*btnText.width;
@@ -23,9 +37,9 @@ Window {
                 anchors.centerIn: parent;
                 color: 'green';
                 radius: 0.1*btnText.height;
-                enabled: board.gameOver;
-                opacity: board.gameOver ?
-                    (btnArea.containsMouse ? 1 : 0.5) : 0;
+                property bool showButton : board.gameOver || board.isVirtual;
+                enabled: showButton;
+                opacity: showButton ? (btnArea.containsMouse ? 1 : 0.5) : 0;
                 Behavior on opacity {
                     NumberAnimation { duration: 500; }
                 }
@@ -33,7 +47,11 @@ Window {
                     id: btnArea;
                     anchors.fill: parent;
                     hoverEnabled: true;
-                    onClicked: board.start(false);
+                    onClicked: {
+                        idleTimer.count = 0;
+                        board.isVirtual = false;
+                        board.start();
+                    }
                     cursorShape: Qt.PointingHandCursor;
                 }
                 Text {
@@ -41,8 +59,36 @@ Window {
                     anchors.centerIn: parent;
                     color: 'white';
                     font.pixelSize: 0.1*board.height;
-                    text: '(Re)Start';
+                    text: 'Play';
                 }
+            }
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter;
+                anchors.top: top.bottom;
+                anchors.topMargin: 5;
+                visible: board.isVirtual;
+                opacity: 0.5;
+                font.pixelSize: 0.05*board.height;
+                text: 'Demo Mode';
+            }
+            Text {
+                anchors.horizontalCenter: parent.horizontalCenter;
+                anchors.bottom: parent.bottom;
+                anchors.bottomMargin: 5;
+                visible: board.isVirtual;
+                opacity: 0.5;
+                font.pixelSize: 0.05*board.height;
+                text: 'Demo Mode';
+            }
+            Text {
+                anchors.bottom: parent.bottom;
+                anchors.left: parent.left;
+                anchors.bottomMargin: 5;
+                anchors.leftMargin: 5;
+                visible: idleTimer.count > 0;
+                opacity: 0.5;
+                font.pixelSize: 0.05*board.height;
+                text: idleTimer.count;
             }
         }
         ListView {

@@ -34,7 +34,7 @@ Item {
         running: false;
     }
 
-    property var gameOver :
+    property bool gameOver :
         (!countAnim.running && !volumeAnim.running) ||
         n > (plumbedGrid.maxIndex+1) ||
         plumbedGrid.leaks.length == 0;
