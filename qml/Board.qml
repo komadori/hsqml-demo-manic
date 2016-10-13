@@ -7,9 +7,10 @@ Item {
     property int tilesWide : 8;
     property int tilesHigh : 8;
     property bool isVirtual : false;
+    property color bgColor : 'cyan';
 
-    property double tileSize : Math.min(
-        width / tilesWide,  height / tilesHigh);
+    property double tileSize : Math.floor(Math.min(
+        width / tilesWide,  height / tilesHigh));
     property var tileSource : newTileSource();
     property var gridModel : newGrid();
     property var plumbedGrid : gridModel.plumb();
@@ -47,6 +48,17 @@ Item {
             virtualMouse.pick();
         }
         countAnim.restart();
+    }
+
+    Rectangle {
+        width: c.tileSize*c.tilesWide;
+        height: c.tileSize*c.tilesHigh;
+        color: c.bgColor;
+        MouseArea {
+            id: realMouse;
+            anchors.fill: parent;
+            hoverEnabled: true;
+        }
     }
 
     Repeater {
@@ -197,12 +209,6 @@ Item {
             x: virtualMouse.mouseX; y: virtualMouse.mouseY;
             source: 'mouse.svg'
         }
-    }
-
-    MouseArea {
-        id: realMouse;
-        anchors.fill: parent;
-        hoverEnabled: true;
     }
 
     Item {

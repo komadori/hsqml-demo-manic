@@ -10,10 +10,9 @@ Window {
     RowLayout {
         anchors.fill: parent;
 
-        Rectangle {
+        Item {
             Layout.fillWidth: true;
             Layout.fillHeight: true;
-            color: 'cyan';
             Board {
                 id: board;
                 anchors.fill: parent;
