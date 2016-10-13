@@ -5,7 +5,6 @@ Item {
     id: c;
     width: tileSize;
     height: tileSize;
-    clip: true;
 
     property double tileSize : 100;
     property double internalTileSize : 100;
@@ -70,7 +69,9 @@ Item {
         fast: true;
         color: 'black';
         opacity: 0.2;
-        source: mask;
+        source: uncached_mask;
+        layer.enabled: true;
+        clip: true;
     }
     LinearGradient {
         function steer(n, dir) {
@@ -127,12 +128,16 @@ Item {
         id: mask;
         anchors.fill: parent; visible: false;
         layer.enabled: true;
-        Image {
+        Item {
+            id: uncached_mask;
             anchors.fill: parent;
-            rotation: c._maskRotation;
-            source: c._maskSource + '_mask.svg';
-            sourceSize.width: c.internalTileSize;
-            sourceSize.height: c.internalTileSize;
+            Image {
+                anchors.fill: parent;
+                rotation: c._maskRotation;
+                source: c._maskSource + '_mask.svg';
+                sourceSize.width: c.internalTileSize;
+                sourceSize.height: c.internalTileSize;
+            }
         }
     }
     Item {
