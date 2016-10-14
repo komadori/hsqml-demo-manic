@@ -167,13 +167,6 @@ instance Marshal PlumbedGrid where
     type MarshalMode PlumbedGrid c d = ModeObjBidi PlumbedGrid c
     marshaller = bidiMarshallerIO (return . fromObjRef) newObjectDC 
 
-newGrid :: Grid
-newGrid = Grid 8 8 $ Map.fromList [
-    (Pt 4 0,Start Yellow South),
-    (Pt 3 7,End Yellow North),
-    (Pt 0 3, Start Brown East),
-    (Pt 7 4, End Brown West)]
-
 data Plumb = Plumb Colour Int Point (Maybe Bearing) (Maybe Bearing)
     deriving (Typeable, Show)
 
@@ -421,9 +414,6 @@ placePlumb (Plumb _ _ curr (Just inflow) (Just flow))
     | otherwise = placeIfFree curr Cross
 placePlumb _ = id
 
-main :: IO ()
-main = debugMain newGrid
-
 debugMain :: Grid -> IO ()
 debugMain myGrid = do
     clazz <- newClass [
@@ -438,3 +428,13 @@ debugMain myGrid = do
         initialDocument = fileDocument qml,
         contextObject = Just $ anyObjRef object
     }
+
+newGrid :: Grid
+newGrid = Grid 8 8 $ Map.fromList [
+    (Pt 4 0,Start Yellow South),
+    (Pt 3 7,End Yellow North),
+    (Pt 0 3, Start Brown East),
+    (Pt 7 4, End Brown West)]
+
+main :: IO ()
+main = debugMain newGrid
