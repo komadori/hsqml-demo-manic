@@ -3,6 +3,7 @@ module Main where
 
 import Control.Concurrent (forkIO)
 import Control.Exception (evaluate)
+import Control.Applicative ((<$>))
 import Control.Monad
 import Control.Monad.Random
 import Data.Function
@@ -82,14 +83,14 @@ newTileSource = do
     return $ TileSource $ zipWith NumberedTile (randomTiles g) [0..]
 
 randomEnum :: forall g e. (RandomGen g, Enum e, Bounded e) => Rand g e
-randomEnum = fmap toEnum $ getRandomR (fromEnum lo, fromEnum hi)
+randomEnum = toEnum <$> getRandomR (fromEnum lo, fromEnum hi)
     where lo = minBound :: e
           hi = maxBound :: e
 
 randomTile :: (RandomGen g) => Rand g Tile
 randomTile = join $ fromList [
-    (liftM Corner randomEnum, 4),
-    (liftM Straight randomEnum, 2),
+    (fmap Corner randomEnum, 4),
+    (fmap Straight randomEnum, 2),
     (return Cross, 1)]
 
 randomTiles :: (RandomGen g) => g -> [Tile]
@@ -258,12 +259,12 @@ plumbStep tileFn pre@(PrePlumb _ _ curr flow) = case tileFn curr of
 
 unfoldrEither :: (b -> Either c (a, b)) -> b -> (c, [a])
 unfoldrEither f b  = case f b of
-    Right (a,b') -> fmap (a:) $ unfoldrEither f b'
+    Right (a,b') -> (a:) <$> unfoldrEither f b'
     Left c       -> (c, [])
 
 plumbStart :: Grid -> Colour -> Point -> Maybe Bearing -> (Terminal, [Plumb])
 plumbStart (Grid _ _ grid) col start flow =
-    unfoldrEither (plumbStep (flip Map.lookup grid)) $
+    unfoldrEither (plumbStep (`Map.lookup` grid)) $
     PrePlumb col 0 start flow
 
 plumbAllStarts :: Grid -> [[Plumb]]
@@ -320,14 +321,14 @@ plumbGrid grid =
     let plumbs = plumbAllStarts grid
         leaks = mapMaybe plumbLeak plumbs
         indexMap = buildIndexMap $ plumb ++ filter (\(Plumb _ _ _ _ flow) ->
-            not $ isJust flow) spares
+            isNothing flow) spares
         plumb = concat plumbs
         spares = spareParts $ stripPlumbed plumb grid
     in PlumbedGrid (plumb ++ spares) leaks indexMap
 
 nextPosFollowPlumb :: Grid -> Colour -> Point -> Maybe Bearing -> [PrePlumb]
 nextPosFollowPlumb grid@(Grid w h _) col start flow =
-    dropOutOfBounds $ case fmap reverse $ plumbStart grid col start flow of
+    dropOutOfBounds $ case reverse <$> plumbStart grid col start flow of
         (EmptyTile, []) -> [PrePlumb col 0 start flow]
         (EmptyTile, ps) -> plumbOn (head ps) : map unPlumb ps
         (Success, ps) -> map unPlumb ps
@@ -348,16 +349,16 @@ findCosts ::
     Grid -> Colour -> Point -> Map Point (Int, [PrePlumb])
 findCosts grid col start =
     fst $ fromJust $ find (null . snd) $
-    iterate explore (Map.empty, [(start, [], (-1))])
+    iterate explore (Map.empty, [(start, [], -1)])
     where explore (cache, open) =
               foldr update (cache, []) open 
           update (curr, pps, cost') (cache, open) =
               case fromMaybe (maxBound, []) $ Map.lookup curr cache of
                   (cost, _) | cost' < cost ->
                       (Map.insert curr (cost', pps) cache,
-                       (map (\pps'@(PrePlumb _ _ curr' _:_) ->
-                           (curr', pps' ++ pps, cost' + 1)) $
-                           neighbours grid col curr) ++ open)
+                       map (\pps'@(PrePlumb _ _ curr' _:_) ->
+                           (curr', pps' ++ pps, cost' + 1))
+                           (neighbours grid col curr) ++ open)
                   _ -> (cache, open)
 
 findGoal ::
@@ -404,7 +405,7 @@ searchMoves grid@(Grid w h _) vol tile =
 
 sortMoves :: Point -> Int -> [(Point, Grid)] -> [(Point, Grid)]
 sortMoves start vol =
-    map fst . sortBy ((flip compare) `on` snd) .
+    map fst . sortBy (flip compare `on` snd) .
     map (\x -> (,) x $ (+ (distance start (fst x) / (-100.0))) $ fromIntegral $ gridHeuristic vol $ snd x)
 
 distance :: Point -> Point -> Double
