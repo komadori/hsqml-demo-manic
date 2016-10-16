@@ -31,3 +31,7 @@ executable hsqml-manic
         MonadRandom >= 0.4   && < 0.5,
         hsqml       >= 0.3.4 && < 0.4
     GHC-options: -threaded
+
+Source-repository head
+    type:     darcs
+    location: http://hub.darcs.net/komadori/hsqml-demo-manic
